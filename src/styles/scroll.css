@@ -1,0 +1,20 @@
+/* Firefox */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: #c7c7c7 #ffffff;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 9px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #c7c7c7;
+    border-radius: 8px;
+    border: 3px solid #ffffff;
+}
