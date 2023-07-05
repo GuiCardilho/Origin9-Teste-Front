@@ -294,6 +294,7 @@ export const CRUDUPage = () => {
             </div>
 
             <div className="flex flex-1 justify-center items-center gap-8 my-4 ">
+                <h1 className="font-bold text-lg">Endpoints: </h1>
                 {button.map((item) => (
                     <button
                         className={clsx(
