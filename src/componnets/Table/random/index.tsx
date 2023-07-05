@@ -1,17 +1,18 @@
 import { clsx } from "clsx";
 
-interface IProps<Columns extends Record<string, string>> {
-    rows:
-        | (Array<{ [key in keyof Columns]: string }> &
-              Record<string, unknown>[])
-        | [];
-    columns: Columns;
+export interface IRows {
+    [key: string]: string;
 }
 
-export const RandomTable = <Columns extends Record<string, string>>({
-    rows,
-    columns,
-}: IProps<Columns>) => {
+export interface IColumns {
+    [key: string]: string;
+}
+interface IProps {
+    rows: IRows[];
+    columns: IColumns;
+}
+
+export const RandomTable = ({ rows, columns }: IProps) => {
     return (
         <div className="border border-gray-300 rounded-lg shadow-sm shadow-slate-100 transition-all">
             <table className="table-auto w-full h-full ">
@@ -22,7 +23,7 @@ export const RandomTable = <Columns extends Record<string, string>>({
                                 key={key}
                                 className="p-4 text-start text-gray-700 font-bold "
                             >
-                                {value}
+                                <p>{value}</p>
                             </th>
                         ))}
                     </tr>

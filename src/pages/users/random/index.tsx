@@ -1,43 +1,60 @@
-import { useLayoutEffect, useEffect, useState } from "react";
-import { RandomTable } from "../../../componnets/Table/random";
+import { useEffect, useState } from "react";
+import { IColumns, IRows, RandomTable } from "../../../componnets/Table/random";
 import api from "../../../services/api";
 import { sendToast } from "../../../util/toast";
 import { AxiosResponse } from "axios";
+import clsx from "clsx";
 
-interface IUser {
-    cpf: string;
-    createdAt: Date;
-    data_nascimento: string;
-    endereco: string;
-    nome: string;
-    status: "Inativo" | "Ativo";
-    __v: number;
-    _id: string;
-    [key: string]: unknown;
-}
-
-interface IResponseUsers {
-    users: IUser[];
+interface IResponse {
+    rows: IRows[];
+    columns: IColumns;
     message: string;
 }
 
 export const RandomUsersPage = () => {
-    const columns = {
-        nome: "Nome",
-        cpf: "CPF",
-        data_nascimento: "Data De Nascimento",
-        endereco: "Endereço",
-        status: "Status",
-    };
-    const [data, setDdate] = useState<IUser[]>([]);
+    const [rows, setRows] = useState<IRows[]>([]);
+    const [columns, setColumns] = useState<IColumns>({});
+
+    const [endpoint, setEndpoint] = useState("/users/random");
     const [search, setSearch] = useState(10);
 
+    const button = [
+        {
+            name: "Usuário",
+            endpoint: "/users/random",
+        },
+        {
+            name: "Administradores",
+            endpoint: "/admin/random",
+        },
+        {
+            name: "Empresas",
+            endpoint: "/company/random",
+        },
+        {
+            name: "Produtos",
+            endpoint: "/product/random",
+        },
+        {
+            name: "Categorias",
+            endpoint: "/category/random",
+        },
+        {
+            name: "Cupons",
+            endpoint: "/coupon/random",
+        },
+    ];
+
     const mountData = async () => {
+        setRows([]);
+        setColumns({});
         try {
-            const response: AxiosResponse<IResponseUsers> = await api.get(
-                `/users/random?amount=${search}`
+            const response: AxiosResponse<IResponse> = await api.get(
+                `${endpoint}?amount=${search}`
             );
-            setDdate(response.data.users);
+
+            setColumns(response.data.columns);
+            setRows(response.data.rows);
         } catch (error) {
             sendToast({
                 message: "Ops, ocorreu um erro interno no servidor.",
@@ -62,15 +79,15 @@ export const RandomUsersPage = () => {
         };
     }, [search]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         mountData();
-    }, []);
+    }, [endpoint]);
 
     return (
         <main className="!m-4 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
                 <label className="text-lg text-gray-600 font-semibold">
-                    Quantidade de Usuários
+                    Quantidade de Linhas
                 </label>
                 <div className="flex flex-1 gap-4">
                     <input
@@ -96,7 +113,24 @@ export const RandomUsersPage = () => {
                     </button>
                 </div>
             </div>
-            <RandomTable rows={data} columns={columns} />
+
+            <div className="flex flex-1 justify-center items-center gap-8 my-4 ">
+                {button.map((item) => (
+                    <button
+                        className={clsx(
+                            "bg-gray-100 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-200 active:bg-gray-300",
+                            {
+                                "bg-gray-200": endpoint === item.endpoint,
+                            }
+                        )}
+                        onClick={() => setEndpoint(item.endpoint)}
+                    >
+                        {item.name}
+                    </button>
+                ))}
+            </div>
+
+            <RandomTable rows={rows} columns={columns} />
         </main>
     );
 };

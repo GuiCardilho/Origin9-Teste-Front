@@ -15,7 +15,14 @@ Yarn
 
 # Como rodar o projeto
 
-yarn start
+1 - Passo- Digite no terminal
+`yarn`
+
+2 - Passo - Digite no terminal
+`yarn start`
+
+3 - Passo - Acessar:
+http://localhost:9001/
 
 # HOSPEDAGEM ONLINE
 

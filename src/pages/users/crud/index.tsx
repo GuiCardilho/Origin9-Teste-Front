@@ -68,6 +68,7 @@ export const CRUDUsersPage = () => {
     const [modal, setModal] = useState(false);
     const [disabledSubmitForm, setDisabledSubmitForm] = useState(true);
     const [edit, setEdit] = useState(false);
+
     const [formModal, setFormModal] = useState({
         _id: "",
         nome: "",
