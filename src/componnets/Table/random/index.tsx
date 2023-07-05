@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 
 export interface IRows {
+    _id: string;
     [key: string]: string;
 }
 

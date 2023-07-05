@@ -15,67 +15,79 @@ import { IPropsDialogModal } from "../../../componnets/Dialog";
 import { Input } from "../../../componnets/Input";
 import { Modal } from "../../../componnets/Modal";
 import { FormModal } from "../../../componnets/FormModal";
-import { FormModalUser } from "./formModal.mock";
+import { IColumns, IRows } from "../../../componnets/Table/random";
+import clsx from "clsx";
 
-interface IUser {
-    cpf: string;
-    createdAt: Date;
-    data_nascimento: string;
-    endereco: string;
-    nome: string;
-    status: "Inativo" | "Ativo";
-    __v: number;
-    _id: string;
-    [key: string]: unknown;
-}
-
-interface IUserEdit {
+interface IEdit {
     message: string;
-    user: IUser;
+    rows: IRows;
 }
 
-interface IResponseUsers {
-    users: IUser[];
-    message: string;
+interface ISelectOption {
+    value: string;
+    text: string;
 }
-
-export const CRUDUsersPage = () => {
-    const columns = {
-        nome: "Nome",
-        cpf: "CPF",
-        data_nascimento: "Data De Nascimento",
-        endereco: "Endereço",
-        status: "Status",
+interface ItemModal {
+    title: string;
+    name: string;
+    placeholder?: string;
+    mask?: string;
+    type?: string;
+    select?: {
+        options: ISelectOption[];
     };
+}
+interface IResponseGet {
+    columns: IColumns;
+    rows: IRows[];
+    message: string;
+    modal: ItemModal[];
+    title: string;
+    endpoint: string;
+}
+
+export const CRUDUPage = () => {
+    const button = [
+        {
+            name: "Usuário",
+            endpoint: "/users",
+        },
+        {
+            name: "Administradores",
+            endpoint: "/admins",
+        },
+    ];
+
     const options = [
         {
             onClick: (value: string) => {
-                deleteUser(value);
+                deleteForm(value);
             },
             icon: <HiOutlineTrash size={24} />,
         },
         {
             onClick: (value: string) => {
-                editUser(value);
+                editForm(value);
             },
             icon: <HiOutlineEye size={24} />,
         },
     ];
 
     const { setInfoModal, closeDialog } = useDialog();
-    const [data, setDdate] = useState<IUser[]>([]);
+
+    const [data, setDdate] = useState<IRows[]>([]);
+    const [columns, setColumns] = useState({});
+
     const [search, setSearch] = useState("");
     const [modal, setModal] = useState(false);
     const [disabledSubmitForm, setDisabledSubmitForm] = useState(true);
+    const [endpoint, setEndPoint] = useState("/users");
+    const [title, setTitle] = useState("");
+    const [formRows, setFormRows] = useState<ItemModal[]>([]);
     const [edit, setEdit] = useState(false);
 
     const [formModal, setFormModal] = useState({
         _id: "",
-        nome: "",
-        cpf: "",
-        data_nascimento: "",
-        endereco: "",
-        status: FormModalUser[4]?.select?.options[0].value,
     });
 
     const successDialog = (message: string) => {
@@ -83,10 +95,10 @@ export const CRUDUsersPage = () => {
             modal: {
                 status: true,
                 title: {
-                    text: `Usuario ${message} com sucesso`,
+                    text: `${title} ${message} com sucesso`,
                     icon: <HiOutlineCheck size={28} />,
                 },
-                description: `O usuario foi ${message} com sucesso na plataforma!`,
+                description: `O ${title} foi ${message} com sucesso na plataforma!`,
                 primarybutton: {
                     text: "Ok",
                     onClick: () => {
@@ -107,7 +119,7 @@ export const CRUDUsersPage = () => {
                     text: `Falha ao ${message}!`,
                     icon: <HiOutlineX size={28} />,
                 },
-                description: `Houve um erro ao ${message} o usuario na plataforma, contate o administrador.`,
+                description: `Houve um erro ao ${message} o ${title} na plataforma, contate o administrador.`,
                 primarybutton: {
                     text: "Ok",
                     type: "error",
@@ -130,39 +142,36 @@ export const CRUDUsersPage = () => {
         setFormModal((oldValue) => ({ ...oldValue, [name]: value }));
     };
     const ErrorModal = () => {
-        if (formModal.nome.length <= 0) {
-            return true;
-        } else if (formModal.cpf.length <= 11) {
-            return true;
-        } else if (
-            formModal.data_nascimento.length <= 0 ||
-            new Date(formModal.data_nascimento) > new Date(Date.now())
-        ) {
-            return true;
-        } else if (formModal.endereco.length <= 0) {
-            return true;
-        } else return false;
-    };
-    const editUser = async (value: string) => {
-        resetForModal();
-        const response: AxiosResponse<IUserEdit> = await api.get(
-            `/users/${value}`
-        );
-        setFormModal({
-            _id: response.data.user._id,
-            nome: response.data.user.nome,
-            cpf: response.data.user.cpf,
-            data_nascimento: response.data.user.data_nascimento,
-            endereco: response.data.user.endereco,
-            status: response.data.user.status,
+        const val = Object.entries(formModal).map(([key, value]) => {
+            if (!value) return true;
+            else false;
         });
+
+        return val.every((element) => element === true);
+    };
+
+    const editForm = async (value: string) => {
+        resetForModal();
+        const response: AxiosResponse<IEdit> = await api.get(
+            `${endpoint}/${value}`
+        );
+
+        console.log(response.data.rows);
+
+        Object.entries(response.data.rows).forEach(([key, value]) => {
+            setFormModal((prevFormModal) => ({
+                ...prevFormModal,
+                [key]: value,
+            }));
+        });
+
         setEdit(true);
         setModal(true);
     };
 
-    const deleteUser = async (id: string) => {
+    const deleteForm = async (id: string) => {
         try {
-            await api.delete(`/users/${id}`);
+            await api.delete(`${endpoint}/${id}`);
             successDialog("deletado");
             mountData();
         } catch (error) {
@@ -171,9 +180,9 @@ export const CRUDUsersPage = () => {
             resetForModal();
         }
     };
-    const postUser = async () => {
+    const postForm = async () => {
         try {
-            await api.post(`/users`, formModal);
+            await api.post(`${endpoint}`, formModal);
             successDialog("cadastrado");
             mountData();
         } catch (error) {
@@ -182,34 +191,37 @@ export const CRUDUsersPage = () => {
             resetForModal();
         }
     };
-    const putUser = async () => {
+    const putForm = async () => {
         try {
-            await api.put(`/users/${formModal._id}`, formModal);
-            successDialog("editado");
-            mountData();
+            if (formModal?._id) {
+                await api.put(`${endpoint}/${formModal._id}`, formModal);
+                successDialog("editado");
+                mountData();
+            }
         } catch (error) {
             errorDialog("editar");
         } finally {
             resetForModal();
         }
     };
+
     const resetForModal = () => {
         setFormModal({
             _id: "",
-            nome: "",
-            cpf: "",
-            data_nascimento: "",
-            endereco: "",
-            status: FormModalUser[4]?.select?.options[0].value,
         });
+        mountData();
     };
 
     const mountData = async () => {
         try {
-            const response: AxiosResponse<IResponseUsers> = await api.get(
-                `/users?search=${search}`
+            const response: AxiosResponse<IResponseGet> = await api.get(
+                `${endpoint}?search=${search}`
             );
-            setDdate(response.data.users);
+            setColumns(response.data.columns);
+            setEndPoint(response.data.endpoint);
+            setFormRows(response.data.modal);
+            setTitle(response.data.title);
+            setDdate(response.data.rows);
         } catch (error) {
             sendToast({
                 message: "Ops, ocorreu um erro interno no servidor.",
@@ -239,7 +251,7 @@ export const CRUDUsersPage = () => {
 
     useLayoutEffect(() => {
         mountData();
-    }, []);
+    }, [endpoint]);
 
     return (
         <main className="!m-4 flex flex-col gap-4">
@@ -248,11 +260,11 @@ export const CRUDUsersPage = () => {
                     <Input
                         className="flex flex-1 flex-col gap-1"
                         id="search"
-                        label={"Pesquisar Usuario"}
+                        label={`Pesquisar ${title}`}
                         input={{
                             name: "search",
                             value: search,
-                            placeholder: "Digite o nome do usuários",
+                            placeholder: `Digite o nome do ${title}`,
                             onChange: (e) => {
                                 setSearch(e.target.value);
                             },
@@ -268,7 +280,7 @@ export const CRUDUsersPage = () => {
                                 "bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-lg px-4 transition-all text-gray-600 font-semibold border boder-gray-800",
                         }}
                         secondaryButton={{
-                            text: "Adicionar Usuario",
+                            text: `Adicionar ${title}`,
                             type: "button",
                             onClick: () => {
                                 resetForModal();
@@ -282,28 +294,44 @@ export const CRUDUsersPage = () => {
                 </div>
             </div>
 
+            <div className="flex flex-1 justify-center items-center gap-8 my-4 ">
+                {button.map((item) => (
+                    <button
+                        className={clsx(
+                            "bg-gray-100 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-200 active:bg-gray-300",
+                            {
+                                "bg-gray-200": endpoint === item.endpoint,
+                            }
+                        )}
+                        onClick={() => setEndPoint(item.endpoint)}
+                    >
+                        {item.name}
+                    </button>
+                ))}
+            </div>
+
             <Modal
                 isOpen={modal}
                 onClose={() => setModal(false)}
                 title={{
                     lefticon: <HiUserAdd size={20} />,
-                    text: `${edit ? "Editar Usuario" : "Criar Usuario"}`,
+                    text: `${edit ? `Editar ${title}` : `Editar ${title}`}`,
                 }}
                 element={
                     <FormModal
-                        rows={FormModalUser}
+                        rows={formRows}
                         onChange={onChanceFormModal}
                         value={formModal}
                     />
                 }
                 primarybutton={{
                     id: "submit",
-                    text: `${edit ? "Editar Usuario" : "Criar Usuario"}`,
+                    text: `${edit ? `Editar ${title}` : `Editar ${title}`}`,
                     onClick: () => {
                         if (edit) {
-                            putUser();
+                            putForm();
                         } else {
-                            postUser();
+                            postForm();
                         }
                         setModal(false);
                     },

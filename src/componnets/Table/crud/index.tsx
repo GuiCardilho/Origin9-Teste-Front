@@ -1,22 +1,27 @@
 import { clsx } from "clsx";
 
-interface IProps<Columns extends Record<string, string>> {
-    rows:
-        | (Array<{ [key in keyof Columns]: string }> &
-              Record<string, unknown>[])
-        | [];
-    columns: Columns;
+interface IRows {
+    [key: string]: string;
+}
+
+interface IColumns {
+    [key: string]: string;
+}
+
+interface IProps {
+    rows: IRows[];
+    columns: IColumns;
     options?: {
         onClick: (id: string) => void;
         icon: React.ReactNode;
     }[];
 }
 
-export const CRUDTable = <Columns extends Record<string, string>>({
+export const CRUDTable = ({
     rows,
     columns,
     options,
-}: IProps<Columns>) => {
+}: IProps) => {
     return (
         <div className="border border-gray-300 rounded-lg shadow-sm shadow-slate-100 transition-all">
             <table className="table-auto w-full h-full ">
