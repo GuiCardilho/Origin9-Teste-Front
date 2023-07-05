@@ -43,7 +43,6 @@ interface IResponseGet {
     message: string;
     modal: ItemModal[];
     title: string;
-    endpoint: string;
 }
 
 export const CRUDUPage = () => {
@@ -219,7 +218,6 @@ export const CRUDUPage = () => {
                 `${endpoint}?search=${search}`
             );
             setColumns(response.data.columns);
-            setEndPoint(response.data.endpoint);
             setFormRows(response.data.modal);
             setTitle(response.data.title);
             setDdate(response.data.rows);
