@@ -143,6 +143,7 @@ export const CRUDUPage = () => {
     };
     const ErrorModal = () => {
         const val = Object.entries(formModal).map(([key, value]) => {
+            console.log(key);
             if (!value) return true;
             else false;
         });
