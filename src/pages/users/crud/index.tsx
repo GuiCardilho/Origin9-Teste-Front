@@ -305,10 +305,10 @@ export const CRUDUPage = () => {
         mountData();
     };
 
-    const mountData = async () => {
+    const mountData = async (endProps?: string) => {
         try {
             const response: AxiosResponse<IResponseGet> = await api.get(
-                `${endpoint}?search=${search}`
+                `${endProps ? endProps : endpoint}?search=${search}`
             );
             setFormRows(response.data.modal);
             setTitle(response.data.title);
@@ -367,7 +367,7 @@ export const CRUDUPage = () => {
                         button={{
                             text: "Pesquisar",
                             type: "button",
-                            onClick: mountData,
+                            onClick: () => mountData(),
                             className:
                                 "bg-gray-50 hover:bg-gray-100 active:bg-gray-200 rounded-lg px-4 transition-all text-gray-600 font-semibold border boder-gray-800",
                         }}
@@ -398,8 +398,9 @@ export const CRUDUPage = () => {
                             }
                         )}
                         onClick={() => {
-                            setColumns(item.columns);
                             setEndpoint(item.endpoint);
+                            setColumns(item.columns);
+                            mountData(item.endpoint);
                         }}
                     >
                         {item.name}
