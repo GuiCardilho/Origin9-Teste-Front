@@ -9,13 +9,13 @@ import {
 import api from "../../../services/api";
 import { sendToast } from "../../../util/toast";
 import { AxiosResponse } from "axios";
-import { CRUDTable } from "../../../componnets/Table/crud";
+import { Table } from "../../../componnets/Table";
 import { useDialog } from "../../../hooks/dialog";
 import { IPropsDialogModal } from "../../../componnets/Dialog";
 import { Input } from "../../../componnets/Input";
 import { Modal } from "../../../componnets/Modal";
 import { FormModal } from "../../../componnets/FormModal";
-import { IColumns, IRows } from "../../../componnets/Table/random";
+import { IColumns, IRows } from "../../../componnets/Table";
 import clsx from "clsx";
 
 interface IEdit {
@@ -141,8 +141,7 @@ export const CRUDUPage = () => {
         setFormModal((oldValue) => ({ ...oldValue, [name]: value }));
     };
     const ErrorModal = () => {
-        const val = Object.entries(formModal).map(([key, value]) => {
-            console.log(key);
+        const val = Object.values(formModal).map((value) => {
             if (!value) return true;
             else false;
         });
@@ -156,8 +155,6 @@ export const CRUDUPage = () => {
             `${endpoint}/${value}`
         );
 
-        console.log(response.data.rows);
-
         Object.entries(response.data.rows).forEach(([key, value]) => {
             setFormModal((prevFormModal) => ({
                 ...prevFormModal,
@@ -168,7 +165,6 @@ export const CRUDUPage = () => {
         setEdit(true);
         setModal(true);
     };
-
     const deleteForm = async (id: string) => {
         try {
             await api.delete(`${endpoint}/${id}`);
@@ -231,6 +227,7 @@ export const CRUDUPage = () => {
     useEffect(() => {
         setDisabledSubmitForm(ErrorModal());
     }, [formModal]);
+
     useEffect(() => {
         let timerId: NodeJS.Timeout | null = null;
 
@@ -295,8 +292,9 @@ export const CRUDUPage = () => {
 
             <div className="flex flex-1 justify-center items-center gap-8 my-4 ">
                 <h1 className="font-bold text-lg">Endpoints: </h1>
-                {button.map((item) => (
+                {button.map((item, index) => (
                     <button
+                        key={index}
                         className={clsx(
                             "bg-gray-100 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-200 active:bg-gray-300",
                             {
@@ -315,7 +313,7 @@ export const CRUDUPage = () => {
                 onClose={() => setModal(false)}
                 title={{
                     lefticon: <HiUserAdd size={20} />,
-                    text: `${edit ? `Editar ${title}` : `Editar ${title}`}`,
+                    text: `${edit ? `Editar ${title}` : `Cadastrar ${title}`}`,
                 }}
                 element={
                     <FormModal
@@ -326,7 +324,7 @@ export const CRUDUPage = () => {
                 }
                 primarybutton={{
                     id: "submit",
-                    text: `${edit ? `Editar ${title}` : `Editar ${title}`}`,
+                    text: `${edit ? `Editar ${title}` : `Cadastrar ${title}`}`,
                     onClick: () => {
                         if (edit) {
                             putForm();
@@ -346,7 +344,7 @@ export const CRUDUPage = () => {
                 }}
             />
 
-            <CRUDTable rows={data} columns={columns} options={options} />
+            <Table rows={data} columns={columns} options={options} />
         </main>
     );
 };

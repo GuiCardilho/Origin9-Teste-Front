@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IColumns, IRows, RandomTable } from "../../../componnets/Table/random";
+import { IColumns, IRows, Table } from "../../../componnets/Table";
 import api from "../../../services/api";
 import { sendToast } from "../../../util/toast";
 import { AxiosResponse } from "axios";
@@ -116,8 +116,9 @@ export const RandomUsersPage = () => {
 
             <div className="flex flex-1 justify-center items-center gap-8 my-4 ">
                 <h1 className="font-bold text-lg">Endpoints: </h1>
-                {button.map((item) => (
+                {button.map((item, index) => (
                     <button
+                        key={index}
                         className={clsx(
                             "bg-gray-100 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-200 active:bg-gray-300",
                             {
@@ -131,7 +132,7 @@ export const RandomUsersPage = () => {
                 ))}
             </div>
 
-            <RandomTable rows={rows} columns={columns} />
+            <Table rows={rows} columns={columns} />
         </main>
     );
 };

@@ -1,19 +1,23 @@
 import { clsx } from "clsx";
 
 export interface IRows {
-    _id: string;
     [key: string]: string;
 }
 
 export interface IColumns {
     [key: string]: string;
 }
+
 interface IProps {
     rows: IRows[];
     columns: IColumns;
+    options?: {
+        onClick: (id: string) => void;
+        icon: React.ReactNode;
+    }[];
 }
 
-export const RandomTable = ({ rows, columns }: IProps) => {
+export const Table = ({ rows, columns, options }: IProps) => {
     return (
         <div className="border border-gray-300 rounded-lg shadow-sm shadow-slate-100 transition-all">
             <table className="table-auto w-full h-full ">
@@ -24,9 +28,14 @@ export const RandomTable = ({ rows, columns }: IProps) => {
                                 key={key}
                                 className="p-4 text-start text-gray-700 font-bold "
                             >
-                                <p>{value}</p>
+                                {value}
                             </th>
                         ))}
+                        {options && (
+                            <th className="p-4 text-start text-gray-700 font-bold ">
+                                Ações
+                            </th>
+                        )}
                     </tr>
                 </thead>
 
@@ -88,6 +97,26 @@ export const RandomTable = ({ rows, columns }: IProps) => {
                                             </>
                                         </td>
                                     ))}
+
+                                    {options?.length && (
+                                        <td className="p-4 text-gray-500 border-b border-gray-300">
+                                            <div className="flex items-center gap-4">
+                                                {options.map((item, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() =>
+                                                            item.onClick(
+                                                                row["_id"]
+                                                            )
+                                                        }
+                                                        className="border border-gray-300 rounded-lg p-3 transition-all hover:bg-gray-100"
+                                                    >
+                                                        {item.icon}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </>
