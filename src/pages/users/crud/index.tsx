@@ -46,41 +46,138 @@ interface IResponseGet {
 }
 
 export const CRUDUPage = () => {
+    const columnsAdm: IColumns = {
+        nome: {
+            value: "Nome",
+        },
+        cpf: {
+            value: "CPF",
+        },
+        data_nascimento: {
+            value: "Data de nascimento",
+        },
+        endereco: {
+            value: "Endereço",
+        },
+        cargo: {
+            value: "Cargo",
+        },
+        funcao: {
+            value: "Função",
+        },
+        status: {
+            value: "Status",
+        },
+        options: {
+            value: "Opções",
+            header(item) {
+                return (
+                    <div className="flex flex-1 justify-center items-center">
+                        {item.value}
+                    </div>
+                );
+            },
+            cell: (item) => {
+                return (
+                    <div className="flex gap-4 flex-1 w-full h-full justify-center items-center ">
+                        <div className="flex p-2 border border-gray-300 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all">
+                            <HiOutlineTrash
+                                size={24}
+                                onClick={() => {
+                                    deleteForm(item?._id);
+                                }}
+                                className="text-red-500 cursor-pointer"
+                            />
+                        </div>
+                        <div className="flex p-2 border border-gray-300 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all">
+                            <HiOutlineEye
+                                size={24}
+                                onClick={() => {
+                                    editForm(item?._id);
+                                }}
+                                className="text-green-700 cursor-pointer"
+                            />
+                        </div>
+                    </div>
+                );
+            },
+        },
+    };
+
+    const columnsUser: IColumns = {
+        nome: {
+            value: "Nome",
+        },
+        cpf: {
+            value: "CPF",
+        },
+        data_nascimento: {
+            value: "Data de nascimento",
+        },
+        endereco: {
+            value: "Endereço",
+        },
+        status: {
+            value: "Status",
+        },
+        options: {
+            value: "Opções",
+            header(item) {
+                return (
+                    <div className="flex flex-1 justify-center items-center">
+                        {item.value}
+                    </div>
+                );
+            },
+            cell: (item) => {
+                return (
+                    <div className="flex gap-4 flex-1 w-full h-full justify-center items-center ">
+                        <div className="flex p-2 border border-gray-300 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all">
+                            <HiOutlineTrash
+                                size={24}
+                                onClick={() => {
+                                    deleteForm(item?._id);
+                                }}
+                                className="text-red-500 cursor-pointer"
+                            />
+                        </div>
+                        <div className="flex p-2 border border-gray-300 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all">
+                            <HiOutlineEye
+                                size={24}
+                                onClick={() => {
+                                    editForm(item?._id);
+                                }}
+                                className="text-green-700 cursor-pointer"
+                            />
+                        </div>
+                    </div>
+                );
+            },
+        },
+    };
+
     const button = [
         {
             name: "Usuário",
             endpoint: "/users",
+            columns: columnsUser,
         },
         {
             name: "Administradores",
             endpoint: "/admins",
-        },
-    ];
-
-    const options = [
-        {
-            onClick: (value: string) => {
-                deleteForm(value);
-            },
-            icon: <HiOutlineTrash size={24} />,
-        },
-        {
-            onClick: (value: string) => {
-                editForm(value);
-            },
-            icon: <HiOutlineEye size={24} />,
+            columns: columnsAdm,
         },
     ];
 
     const { setInfoModal, closeDialog } = useDialog();
 
     const [data, setDdate] = useState<IRows[]>([]);
-    const [columns, setColumns] = useState({});
+    const [columns, setColumns] = useState(columnsUser);
 
     const [search, setSearch] = useState("");
     const [modal, setModal] = useState(false);
     const [disabledSubmitForm, setDisabledSubmitForm] = useState(true);
-    const [endpoint, setEndPoint] = useState("/users");
+    const [endpoint, setEndpoint] = useState("/users");
     const [title, setTitle] = useState("");
     const [formRows, setFormRows] = useState<ItemModal[]>([]);
     const [edit, setEdit] = useState(false);
@@ -213,7 +310,6 @@ export const CRUDUPage = () => {
             const response: AxiosResponse<IResponseGet> = await api.get(
                 `${endpoint}?search=${search}`
             );
-            setColumns(response.data.columns);
             setFormRows(response.data.modal);
             setTitle(response.data.title);
             setDdate(response.data.rows);
@@ -301,7 +397,10 @@ export const CRUDUPage = () => {
                                 "bg-gray-200": endpoint === item.endpoint,
                             }
                         )}
-                        onClick={() => setEndPoint(item.endpoint)}
+                        onClick={() => {
+                            setColumns(item.columns);
+                            setEndpoint(item.endpoint);
+                        }}
                     >
                         {item.name}
                     </button>
@@ -344,7 +443,7 @@ export const CRUDUPage = () => {
                 }}
             />
 
-            <Table rows={data} columns={columns} options={options} />
+            <Table rows={data} columns={columns} />
         </main>
     );
 };

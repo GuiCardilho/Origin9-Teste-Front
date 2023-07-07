@@ -4,6 +4,14 @@ import api from "../../../services/api";
 import { sendToast } from "../../../util/toast";
 import { AxiosResponse } from "axios";
 import clsx from "clsx";
+import {
+    columnsAdm,
+    columnsCategory,
+    columnsCompany,
+    columnsCoupon,
+    columnsProduct,
+    columnsUser,
+} from "./values";
 
 interface IResponse {
     rows: IRows[];
@@ -13,47 +21,51 @@ interface IResponse {
 
 export const RandomUsersPage = () => {
     const [rows, setRows] = useState<IRows[]>([]);
-    const [columns, setColumns] = useState<IColumns>({});
+    const [columns, setColumns] = useState<IColumns>(columnsUser);
 
-    const [endpoint, setEndpoint] = useState("/users/random");
+    const [endpoint, setEndpoint] = useState("random/users");
     const [search, setSearch] = useState(10);
 
     const button = [
         {
             name: "Usuário",
-            endpoint: "/users/random",
+            endpoint: "random/users",
+            columns: columnsUser,
         },
         {
             name: "Administradores",
-            endpoint: "/admin/random",
+            endpoint: "random/admin",
+            columns: columnsAdm,
         },
         {
             name: "Empresas",
-            endpoint: "/company/random",
+            endpoint: "random/company",
+            columns: columnsCompany,
         },
         {
             name: "Produtos",
-            endpoint: "/product/random",
+            endpoint: "random/product",
+            columns: columnsProduct,
         },
         {
             name: "Categorias",
-            endpoint: "/category/random",
+            endpoint: "random/category",
+            columns: columnsCategory,
         },
         {
             name: "Cupons",
-            endpoint: "/coupon/random",
+            endpoint: "random/coupon",
+            columns: columnsCoupon,
         },
     ];
 
     const mountData = async () => {
         setRows([]);
-        setColumns({});
         try {
             const response: AxiosResponse<IResponse> = await api.get(
                 `${endpoint}?amount=${search}`
             );
 
-            setColumns(response.data.columns);
             setRows(response.data.rows);
         } catch (error) {
             sendToast({
@@ -125,7 +137,10 @@ export const RandomUsersPage = () => {
                                 "bg-gray-200": endpoint === item.endpoint,
                             }
                         )}
-                        onClick={() => setEndpoint(item.endpoint)}
+                        onClick={() => {
+                            setEndpoint(item.endpoint);
+                            setColumns(item.columns);
+                        }}
                     >
                         {item.name}
                     </button>
