@@ -175,7 +175,6 @@ export const CRUDUPage = () => {
 
     const [data, setDdate] = useState<IRows[]>([]);
     const [columns, setColumns] = useState(columnsUser);
-
     const [search, setSearch] = useState("");
     const [modal, setModal] = useState(false);
     const [disabledSubmitForm, setDisabledSubmitForm] = useState(true);
@@ -346,6 +345,11 @@ export const CRUDUPage = () => {
         };
     }, [search]);
 
+    useEffect(() => {
+        if (endpoint === "/users") setColumns(columnsUser);
+        else if (endpoint === "/admins") setColumns(columnsAdm);
+    }, [data]);
+
     useLayoutEffect(() => {
         mountData();
     }, [endpoint]);
@@ -402,10 +406,9 @@ export const CRUDUPage = () => {
                                 "bg-gray-200": endpoint === item.endpoint,
                             }
                         )}
-                        onClick={() => {
+                        onClick={async () => {
                             setEndpoint(item.endpoint);
                             setColumns(item.columns);
-                            mountData(item.endpoint);
                         }}
                     >
                         {item.name}
