@@ -17,6 +17,7 @@ import { Modal } from "../../../componnets/Modal";
 import { FormModal } from "../../../componnets/FormModal";
 import { IColumns, IRows } from "../../../componnets/Table";
 import clsx from "clsx";
+import { useLoading } from "../../../hooks/loading";
 
 interface IEdit {
     message: string;
@@ -170,6 +171,7 @@ export const CRUDUPage = () => {
     ];
 
     const { setInfoModal, closeDialog } = useDialog();
+    const { initLoading, endLoading } = useLoading();
 
     const [data, setDdate] = useState<IRows[]>([]);
     const [columns, setColumns] = useState(columnsUser);
@@ -307,6 +309,7 @@ export const CRUDUPage = () => {
 
     const mountData = async (endProps?: string) => {
         try {
+            initLoading();
             const response: AxiosResponse<IResponseGet> = await api.get(
                 `${endProps ? endProps : endpoint}?search=${search}`
             );
@@ -317,6 +320,8 @@ export const CRUDUPage = () => {
             sendToast({
                 message: "Ops, ocorreu um erro interno no servidor.",
             });
+        } finally {
+            endLoading();
         }
     };
 
